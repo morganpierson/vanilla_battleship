@@ -44,11 +44,10 @@ let compShipPlacement = {
   smallest: {
     pegs: [],
     maxLen: 2
-  },
-  totalPegs: 0
+  }
 };
 
-const placementDirection = ["up", "down", "left", "right"];
+const placementDirection = ["up", "left", "down", "right"];
 
 let userBoard = new Array(100).fill(null);
 let compBoard = new Array(100).fill(null);
@@ -87,11 +86,166 @@ function handlePlayerReady(e) {
   generateRandomShip();
 }
 
+//!!!!! TODO: FINISH COMP LOGIC...CURRENTLY EXCEEDING CALL STACK !!!!!!
 function generateRandomShip() {
-  let randomDirection = placementDirection[Math.floor(Math.random() * 4)];
-  let randomBoardIdx = Math.floor(Math.random() * 100);
-  console.log(randomBoardIdx);
-  console.log(randomDirection);
+  let randomDirection;
+  let randomBoardIdx;
+  let cachedSpaces = {
+    carrier: {},
+    large: {},
+    medium: {},
+    small: {},
+    smallest: {}
+  };
+  let mockBoard = [];
+  let concatBoard = [];
+  //need to place random pegs on computer board
+  //represented by the indexes of compBoard array
+  //maybe loop thru compShipPlacement obj and fill each ship with random index until all ships full
+  let newCompShipPlacement = compShipPlacement;
+  for (let key in newCompShipPlacement) {
+    randomDirection = placementDirection[Math.floor(Math.random() * 4)];
+    //generate random index for ship to start at
+    randomBoardIdx = Math.floor(Math.random() * 100);
+    // while (newBoard[randomBoardIdx] !== null) {
+    //   randomBoardIdx = Math.floor(Math.random() * 100);
+    // }
+
+    if (randomBoardIdx === 0) {
+      randomDirection = "down";
+    } else if (randomBoardIdx === 9) {
+      randomDirection = "left";
+    } else if (randomBoardIdx === 90) {
+      randomDirection = "right";
+    } else if (randomBoardIdx === 99) {
+      randomDirection = "up";
+    }
+    //newCompShipPlacement[key].pegs.push(randomBoardIdx);
+
+    let i = 0;
+    while (i < newCompShipPlacement[key].maxLen) {
+      //generate random direction in which ship will be placed
+
+      //need logic for determining how to prevent collisions
+      //if direction is right and ship length is 4
+      //there must be 3 null spaces available 3 indexes up from randomBoardIdx
+      //if direction is down and ship length is 4
+      //there must be 3 null indexes available at randomBoardIdx + 10, 20, 30...
+      //need to repeat this check for as long as the ships maxLen is
+      switch (randomDirection) {
+        case "up":
+          if (
+            !cachedSpaces[key][randomBoardIdx - i * 10] &&
+            randomBoardIdx - i * 10 > 0 &&
+            !mockBoard.includes(randomBoardIdx - i * 10)
+          ) {
+            newCompShipPlacement[key].pegs.push(randomBoardIdx - i * 10);
+            cachedSpaces[key][randomBoardIdx - i * 10] = true;
+            concatBoard.push(randomBoardIdx - i * 10);
+            break;
+          } else {
+            cachedSpaces[key] = {};
+            newCompShipPlacement[key].pegs = [];
+            randomDirection = placementDirection[Math.floor(Math.random() * 4)];
+            //generate random index for ship to start at
+            randomBoardIdx = Math.floor(Math.random() * 100);
+            newCompShipPlacement[key].pegs.push(randomBoardIdx);
+            cachedSpaces[key][randomBoardIdx] = true;
+            concatBoard = [];
+            concatBoard.push(randomBoardIdx);
+            i = 0;
+            break;
+          }
+        case "down":
+          if (
+            !cachedSpaces[key][randomBoardIdx + i * 10] &&
+            randomBoardIdx + i * 10 < 99 &&
+            !mockBoard.includes(randomBoardIdx + i * 10)
+          ) {
+            newCompShipPlacement[key].pegs.push(randomBoardIdx + i * 10);
+            cachedSpaces[key][randomBoardIdx + i * 10] = true;
+            concatBoard.push(randomBoardIdx + i * 10);
+            break;
+          } else {
+            cachedSpaces[key] = {};
+            newCompShipPlacement[key].pegs = [];
+            randomDirection = placementDirection[Math.floor(Math.random() * 4)];
+            //generate random index for ship to start at
+            randomBoardIdx = Math.floor(Math.random() * 100);
+            newCompShipPlacement[key].pegs.push(randomBoardIdx);
+            cachedSpaces[key][randomBoardIdx] = true;
+            concatBoard = [];
+            concatBoard.push(randomBoardIdx);
+            i = 0;
+            break;
+          }
+        case "right":
+          if (
+            !cachedSpaces[key][randomBoardIdx + i] &&
+            randomBoardIdx + i < 99 &&
+            !mockBoard.includes(randomBoardIdx + i)
+          ) {
+            newCompShipPlacement[key].pegs.push(randomBoardIdx + i);
+            cachedSpaces[key][randomBoardIdx + i] = true;
+            concatBoard.push(randomBoardIdx + i);
+            break;
+          } else {
+            cachedSpaces[key] = {};
+            newCompShipPlacement[key].pegs = [];
+            randomDirection = placementDirection[Math.floor(Math.random() * 4)];
+            //generate random index for ship to start at
+            randomBoardIdx = Math.floor(Math.random() * 100);
+            newCompShipPlacement[key].pegs.push(randomBoardIdx);
+            cachedSpaces[key][randomBoardIdx] = true;
+            concatBoard = [];
+            concatBoard.push(randomBoardIdx);
+            i = 0;
+            break;
+          }
+        case "left":
+          if (
+            !cachedSpaces[key][randomBoardIdx - i] &&
+            randomBoardIdx - i > 0 &&
+            !mockBoard.includes(randomBoardIdx - i)
+          ) {
+            newCompShipPlacement[key].pegs.push(randomBoardIdx - i);
+            cachedSpaces[key][randomBoardIdx - i] = true;
+            concatBoard.push(randomBoardIdx - i);
+            break;
+          } else {
+            cachedSpaces[key] = {};
+            newCompShipPlacement[key].pegs = [];
+            randomDirection = placementDirection[Math.floor(Math.random() * 4)];
+            //generate random index for ship to start at
+            randomBoardIdx = Math.floor(Math.random() * 100);
+            newCompShipPlacement[key].pegs.push(randomBoardIdx);
+            cachedSpaces[key][randomBoardIdx] = true;
+            concatBoard = [];
+            concatBoard.push(randomBoardIdx);
+            i = 0;
+            break;
+          }
+        default:
+          console.log("NOPE");
+          break;
+      }
+      ++i;
+    }
+    mockBoard = mockBoard.concat(concatBoard);
+    concatBoard = [];
+  }
+
+  //need to prevent collisions
+  //no two ships can share indexes
+
+  compShipPlacement = newCompShipPlacement;
+  let newBoard = compBoard;
+
+  for (let j = 0; j < mockBoard.length; j++) {
+    newBoard[mockBoard[j]] = "ship";
+  }
+
+  compBoard = newBoard;
 }
 
 function determineSubHeaderText(ship) {
@@ -128,8 +282,6 @@ function handlePlacedShipSelection(e) {
     determineSubHeaderText(ship);
   }
 }
-
-function handleComputerPlaceShips() {}
 
 function handleUserPlacedShip(e) {
   //userShipPlacement.push(e.target.id);
